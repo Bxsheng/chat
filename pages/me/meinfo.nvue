@@ -1,0 +1,91 @@
+<template>
+	<view>
+			<scroll-view class="myp-bg-page" :scroll-y="true" :style="mypContentHeightStyle">
+				<view style="height: 24rpx;"></view>
+				<view class="TitleImage" @click.active="onImage">
+					<text class="title">头像</text>
+					<view class="image" >
+						<view v-if="userData.faceImage">
+							<myp-icon  :name=userData.faceImage iconStyle="width: 110rpx; height: 110rpx;border-radius:24rpx;"></myp-icon>
+						</view>
+						<view v-else>
+							<myp-icon  name="https://cdn.img.wenhairu.com/images/2020/05/23/YTnhG.jpg" iconStyle="width: 110rpx; height: 110rpx;border-radius:24rpx;"></myp-icon>
+						</view>
+						<myp-icon name="right"></myp-icon>
+					</view>
+
+				</view>
+				<view style="height: 24rpx;"></view>
+				<myp-cell  title="昵称" :value="userData.nickname" @cellClicked="modifyNickName" valueStyle="text-align:right;" indicator="right" boxStyle="padding-left:32rpx;padding-right:32rpx;"></myp-cell>
+				<view style="height: 24rpx;"></view>
+
+				<myp-cell  title="闲聊号" :value="userData.username" valueStyle="text-align:right;"  boxStyle="padding-left:32rpx;padding-right:32rpx;"></myp-cell>
+
+				<view style="height: 24rpx;"></view>
+			</scroll-view>
+		</view>
+
+		<!-- <view style="flex: 1;" class="k-LoginOut">
+			<myp-button bgType="error" icon="/static/bear.jpg" iconStyle="width: 60rpx; height: 60rpx; border-radius:8rpx;" text="退出账号"></myp-button>
+		</view> -->
+
+	</view>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				userData:Object
+			}
+		},
+
+		mounted(){
+			this.userData =JSON.parse(uni.getStorageSync("user"))
+			console.log(this.userData)
+
+		},
+		onShow: function() {
+			this.updateUserData();
+		},
+		methods: {
+			updateUserData() {
+			//获取缓存更新信息
+				const userInfoStatus = uni.getStorageSync("userInfoStatus")
+				if (userInfoStatus !== 0) {
+					this.userData = JSON.parse(uni.getStorageSync("user"))
+					uni.setStorageSync("userInfoStatus", 1)
+					console.log("已更新数据")
+				}
+			},
+			modifyNickName(){
+				uni.navigateTo({
+					url:"myface/userName"
+				})
+			},
+			onImage(){
+				uni.navigateTo({
+					url:"myface/myface"
+				})
+
+			}
+		}
+	}
+</script>
+
+<style>
+	.TitleImage{
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		background-color: #FFFFFF;
+		padding: 0 35upx 0 35upx;
+		height: 120upx;
+	}
+	.title{
+		font-size: 18px;
+	}
+	.image{
+		flex-direction: row;
+	}
+</style>

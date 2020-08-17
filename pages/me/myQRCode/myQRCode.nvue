@@ -1,0 +1,77 @@
+<template>
+		<view class="mainView">
+			<view class="mianShow">
+				<view class="title">
+						<myp-icon :name=userData.faceImage iconStyle="width: 120rpx; height: 120rpx;border-radius:24rpx;"></myp-icon>
+						<view class="InfoTitle" >
+							<text>{{userData.nickname}}</text>
+							<text class="Chat">闲聊号：{{userData.username}}</text>
+						</view>
+
+				</view>
+				<view class="QRcode">
+
+					<myp-icon :name=userData.qrcode iconStyle="width:600rpx; height: 600rpx;border-radius:24rpx;"></myp-icon>
+				</view>
+			</view>
+		</view>
+
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				src: 'https://cdn.uviewui.com/uview/example/fade.jpg',
+				userData:Object
+			}
+		},
+		onShow:function(){
+			this.userData =JSON.parse(uni.getStorageSync("user"))
+		},
+		methods: {
+
+		}
+	}
+</script>
+
+<style>
+.mainView{
+	top: 300rpx;
+	align-items: center;
+}
+.mianShow{
+	width: 650rpx;
+	height: 900rpx;
+	background-color: #FF9090;
+	border-radius: 20rpx;
+}
+.title{
+	flex-direction: row;
+	justify-content: flex-start;
+	align-items: center;
+	height:150rpx;
+	padding-left: 25rpx;
+	top: 30rpx;
+	border-bottom-style:dashed;
+	border-bottom-width: 1px;
+	border-bottom-color: #909399;
+}
+.QRcode{
+	justify-content: center;
+	align-items: center;
+	height: 750rpx;
+	border-radius: 20rpx;
+}
+.InfoTitle{
+	margin-left: 20upx;
+	justify-content: space-between;
+	height: 130upx;
+	padding:10rpx 0 20rpx 0;
+}
+.Chat {
+		font-size: 13px;
+		color: #909399;
+}
+
+</style>

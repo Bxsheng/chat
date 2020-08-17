@@ -1,0 +1,182 @@
+{
+	"pages": [
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "Kdream-闲聊"
+
+			}
+		} ,
+		 {
+		     "path" : "pages/login/login",
+		     "style" : {
+		 		"navigationBarTitleText": "闲聊"
+		 	}
+		 },
+		 {
+		     "path": "pages/login/forget",
+		     "style": {}
+		 }, {
+		     "path": "pages/login/register",
+		     "style": {}
+		 } ,
+		{
+            "path" : "pages/me/me",
+            "style" : {
+				"navigationBarTitleText": null,
+				// 去掉uni自带的页面最外层scroll
+				"disableScroll": true
+			}
+        }
+        ,{
+            "path" : "pages/me/meinfo",
+            "style" : {
+				"navigationBarTitleText": "我的信息"
+			}
+        }
+        ,{
+            "path" : "pages/addressbook/addressbook",
+            "style" : {
+				"navigationBarTitleText": "闲聊",
+				"backgroundColor": "#E5E5E5",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [
+							{
+								"text": "...",
+								"fontSize": "20px",
+								"width":"30px"
+							}
+						]
+
+					}
+				}
+
+			}
+        }
+        ,{
+            "path" : "pages/me/myface/myface",
+			"style": {
+						"navigationBarTitleText": "头像",
+					    "app-plus": {
+								   "titleNView": {
+									   "buttons": [
+										   {
+											   "text": "...",
+											   "fontSize": "20px",
+												"width":"30px"
+										   }
+										]
+
+								   }
+							}
+			            }
+
+        }
+		//图片剪切
+		,{
+			"path": "uview-ui/components/u-avatar-cropper/u-avatar-cropper",
+			"style": {
+				"navigationBarTitleText": "头像裁剪",
+				"navigationBarBackgroundColor": "#000000"
+			}
+		}
+        ,{
+            "path" : "pages/me/myQRCode/myQRCode",
+            "style": {
+            			"navigationBarTitleText": "闲聊码"
+            		}
+        }
+        ,{
+            "path" : "pages/me/myface/userName",
+            "style" : {
+				"navigationBarTitleText": "闲聊名称",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [
+							{
+								"text": "保存",
+								"fontSize": "15px",
+								"width":"30px"
+							}
+						]
+
+					}
+				}
+			}
+        }
+        ,{
+            "path" : "pages/addressbook/newFriend/newFriend",
+            "style" : {
+				"navigationStyle": "custom" ,// 隐藏系统导航栏
+				"navigationBarTextStyle": "white" // 状态栏字体为白色，只能为 white-白色，black-黑色 二选一
+			}
+        }
+        ,{
+            "path" : "pages/addressbook/addFriend/addFriend",
+            "style" : {
+				"navigationStyle": "custom" ,// 隐藏系统导航栏
+				"navigationBarTextStyle": "white" // 状态栏字体为白色，只能为 white-白色，black-黑色 二选一
+			}
+        }
+        ,{
+            "path" : "pages/chat/chat",
+            "style" : {
+				// "navigationStyle": "custom" ,// 隐藏系统导航栏
+				// "navigationBarTextStyle": "white" // 状态栏字体为白色，只能为 white-白色，black-黑色 二选一
+			}
+        }
+    ],
+	"globalStyle": {
+		"navigationBarTextStyle": "white",
+		"navigationBarTitleText": "uni-app",
+		"navigationBarBackgroundColor": "#FF9090",
+		"backgroundColor": "#FFFFFF"
+	},
+	"tabBar":{
+		"color":"bfbfbf",
+		"selectedColor":"#515151",
+		"selectedColor":"#515151",
+		"borderStyle":"black",
+		"backgroundColor":"#FF9090",
+		"list":[
+			{
+				"pagePath":"pages/index/index",
+				"text":"消息",
+				"iconPath":"/static/tabBarIco/message.png",
+				"selectedIconPath":"static/tabBarIco/selectMessage.png"
+			},
+			{
+				"pagePath":"pages/addressbook/addressbook",
+				"text":"通讯录",
+				"iconPath":"static/tabBarIco/content.png",
+				"selectedIconPath":"static/tabBarIco/selectContent.png"
+
+			},
+			{
+				"pagePath":"pages/me/me",
+				"text":"我",
+				"iconPath":"static/tabBarIco/me.png",
+				"selectedIconPath":"./static/tabBarIco/selectMe.png"
+			}
+		]
+	},
+	"easycom": {
+
+	    "autoscan": true,
+	    "custom": {
+			"^u-(.*)": "@/uview-ui/components/u-$1/u-$1.vue",
+	        "myp-(.*)": "@/mypUI/myp-$1/myp-$1.vue" // 匹配mypUI内的vue文件
+	    }
+	},
+	"condition" : { //模式配置，仅开发期间生效
+		"current": 0, //当前激活的模式(list 的索引项)
+		"list": [
+			{
+				"name": "", //模式名称
+				"path": "", //启动页面，必选
+				"query": "" //启动参数，在页面的onLoad函数里面得到
+			}
+		]
+	}
+}

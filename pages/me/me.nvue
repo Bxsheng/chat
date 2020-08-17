@@ -1,0 +1,184 @@
+<template >
+	<view >
+		<!-- 闲聊个人信息 -->
+		<view class="block-color k-Info">
+			<view class="icon-margin icon-bw">
+				<view v-if="userData.faceImage">
+					<myp-icon :name=userData.faceImage iconStyle="width: 120rpx; height: 120rpx;border-radius:24rpx;"></myp-icon>
+				</view>
+				<view v-else>
+					<myp-icon name="https://cdn.img.wenhairu.com/images/2020/05/23/YTnhG.jpg" iconStyle="width: 120rpx; height: 120rpx;border-radius:24rpx;"></myp-icon>
+				</view>
+			</view>
+			<view class="rightView">
+				<view class="k-InfoTitle" @click.active="toInfo">
+					<text>{{userData.nickname}}</text>
+					<text class="k-Chat">闲聊号：{{userData.username}}</text>
+				</view>
+				<view class="QRcode" @click="QRcode">
+					<image src="../../static/QRcode.png" style="width: 80rpx;height: 80rpx;" ></image>
+				</view>
+			</view>
+		</view>
+		<!-- 页面信息类 -->
+		<view>
+			<scroll-view class="myp-bg-page" :scroll-y="false" :style="mypContentHeightStyle">
+<!--				<view style="height: 24rpx;"></view>-->
+<!--				<myp-cell icon="book" title="我的知识" boxStyle="padding-left:32rpx;" ></myp-cell>-->
+<!--				<view style="height: 24rpx;"></view>-->
+<!--				<myp-cell icon="star-two" title="我的收藏" value="查看更多收藏" valueStyle="text-align:right;" indicator="right" boxStyle="padding-left:32rpx;padding-right:32rpx;"></myp-cell>-->
+<!--				<view style="height: 24rpx;"></view>-->
+
+<!--				<myp-cell icon="bold-refresh" title="软件更新" indicator="right" space="24rpx" boxStyle="padding-left:38rpx;padding-right:48rpx;" value="" border=all >-->
+<!--				</myp-cell>-->
+				<view style="height: 24rpx;"></view>
+				<myp-cell  title="关于我" indicator="right" space="24rpx" boxStyle="padding-left:38rpx;padding-right:48rpx;" @cellClicked="toAbout"></myp-cell>
+				<view style="height: 24rpx;"></view>
+				<myp-cell  title="博客地址" indicator="right" space="24rpx" boxStyle="padding-left:38rpx;padding-right:48rpx;" @cellClicked="toBlog"></myp-cell>
+				<view style="height: 24rpx;"></view>
+				<myp-cell  title="退出登录" indicator="right" space="24rpx" boxStyle="padding-left:38rpx;padding-right:48rpx;" @cellClicked="loginOut"></myp-cell>
+
+			</scroll-view>
+			<actionCancel :show="actionCancel" @cancel="cancel" @select="selectLoginOut"></actionCancel>
+			<myp-toast ref="myp-toast"></myp-toast>
+
+		</view>
+
+		<!-- <view style="flex: 1;" class="k-LoginOut">
+			<myp-button bgType="error" icon="/static/bear.jpg" iconStyle="width: 60rpx; height: 60rpx; border-radius:8rpx;" text="退出账号"></myp-button>
+		</view> -->
+
+	</view>
+
+
+</template>
+
+<script>
+	import contentBoxMixin from '@/mypUI/myp-mixin/contentBoxMixin.js';
+	import toastMixin from '@/mypUI/myp-mixin/toastMixin.js'
+	import actionCancel from './actionCancel.vue'
+	export default {
+		mixins: [contentBoxMixin, toastMixin],
+		components:{actionCancel},
+		data() {
+			return {
+				actionCancel:false,
+				userData:Object
+			}
+		},
+		mounted(){
+			this.userData =JSON.parse(uni.getStorageSync("user"))
+
+		},
+		onShow: function() {
+			this.updateUserData();
+		},
+		methods: {
+			updateUserData() {
+				//获取缓存更新信息
+				const userInfoStatus = uni.getStorageSync("userInfoStatus")
+				if (userInfoStatus !== 0) {
+					this.userData = JSON.parse(uni.getStorageSync("user"))
+					uni.setStorageSync("userInfoStatus", 0)
+					console.log("已更新数据")
+				}
+			},
+			toConfirmAction(){
+				console.log(44);
+			},
+			toAbout(){
+				// console.log(11);
+				this.mypShowToast({
+					text: '谢谢 你关注我',
+					type: 'error',
+					mode: 'big'
+				})
+				//#ifdef APP-PLUS
+				//plus.runtime.openWeb("http://www.kdream.cn")
+				//#endif
+
+
+			},toBlog(){
+				// console.log(11);
+				// this.mypShowToast({
+				// 	text: '谢谢 你关注我',
+				// 	type: 'error',
+				// 	mode: 'big'
+				// })
+				//#ifdef APP-PLUS
+				plus.runtime.openWeb("http://www.kdream.cn")
+				//#endif
+
+			},
+			toInfo(){
+				uni.navigateTo({
+					url:'meinfo'
+				})
+			},
+			loginOut(){
+
+				this.actionCancel = true;
+			},
+			selectLoginOut(){
+				uni.reLaunch({
+					url:'../login/login',
+					success(res) {
+						//#ifdef H5
+							uni.clearStorage()
+						//#endif
+							//#ifdef APP-PLUS
+								plus.storage.clear();
+							//#endif
+
+							//关闭连接
+							uni.$emit("closeSocket")
+							console.log("清除失败")
+					}
+				})
+			},
+			cancel(){
+				this.actionCancel = false;
+			},
+			QRcode(){
+
+				uni.navigateTo({
+					url:'myQRCode/myQRCode'
+				})
+			}
+
+
+
+		}
+	}
+</script>
+
+<style lang="scss">
+	.k {
+
+		&-Info{
+			padding: 10upx;
+			flex-direction: row;
+			justify-content: flex-start;
+			height: 160upx;
+		}
+		&-InfoTitle{
+			margin-left: 20upx;
+			justify-content: space-between;
+			height: 130upx;
+			padding:10rpx 0 20rpx 0;
+		}
+		&-Chat {
+			font-size: 13px;
+			color: #909399;
+		}
+
+	}
+	.rightView{
+		width: 580rpx;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+
+</style>

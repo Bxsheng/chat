@@ -1,0 +1,228 @@
+<template>
+	<view >
+		<view v-for="(item,index) in friendList">
+			<MessageCell :title=item.title :image=item.friendImage :message=item.msg @onTouchend="Message(index)"
+						 @onTouchstart="Touchstart(index)" :notice=item.status ></MessageCell>
+
+		</view>
+<!--		<MessageCell title="好久不见啊" message="在老地方等你是" @onSelect="Message" notice='true'></MessageCell>-->
+
+		<RemoveChatMsg :show="RemoveChatMsg" @cancel="cancel" @select="remove"></RemoveChatMsg>
+	</view>
+</template>
+
+<script>
+	import MessageCell from '@/components/k-message-cell/k-message-cell.vue';
+	import {ChatMsgLog} from "../../models/chatMsgLog";
+	import RemoveChatMsg from "./actionRemove"
+	import {UniWebSocket} from "../../models/uniwebsocket";
+	import {UserData} from "../../models/userData";
+	import {DataContent} from "../../models/datacontent";
+	import {DataContentAction} from "../../models/dataContentAction";
+	export default {
+		components: {MessageCell,RemoveChatMsg},
+		data(){
+			return{
+				friendList:[],
+				openChat:true, // true 打开聊天界面
+				timeId:Number, //延时时间id
+				RemoveChatMsg:false,
+				index:Number //移除操作的index
+			}
+		},
+		created() {
+			uni.$on("chatFriendList",value=>{
+				const status = value.status
+				if (status) {this.friendList = ChatMsgLog.getChatFriendList();}
+
+				//获取最新的快照信息
+			})
+			uni.getStorage({
+			    key:"userState",
+			    fail(res) {
+					uni.redirectTo({
+						url:"../login/login",
+					})
+			   },
+					
+			})
+			console.log("第一次加载")
+			this.setUniWebSocket();
+		},
+		onLoad() {
+
+			
+		},
+		onShow(){
+			//获取最新的快照信息
+			this.friendList = ChatMsgLog.getChatFriendList();
+			this.friendList
+		},
+		methods:{
+			Message(index){
+				
+				console.log("手移开时");
+				if (this.openChat){
+					const friendId = this.friendList[index].friendId
+					const value = this.getUserListFindFriend(friendId)
+					uni.navigateTo({
+						url:'../chat/chat?data='+JSON.stringify(value)
+					})
+				}
+				/**
+				 * 移除长按
+				 */
+				this.removeTime()
+			},
+			Touchstart(index){
+				//设置点击id
+				this.index = index
+				this.timeId = setTimeout(()=>{
+					this.RemoveChatMsg = true //显示操作层
+					this.openChat = false // 禁止进入聊天页面
+				},2000)
+			},
+			// 移除时间
+			removeTime(){
+				clearTimeout(this.timeId)
+			},
+			/**
+			 * 在本地列表中获取用户所
+			 * @param friend
+			 */
+			getUserListFindFriend(friend){
+
+				const friendList =JSON.parse(uni.getStorageSync("userFriendList"))
+				// let result = friendList.forEach((value)=>{
+				//
+				//     console.log(value.data.find((res) => res.friendUserId == friend));
+				//
+				// })
+				let result
+				for (let i =0; i< friendList.length ;i++){
+					result = friendList[i].data.find((res)=> res.friendUserId == friend)
+					if (result){
+						break
+					}
+				}
+				return result
+				//  console.log(result)
+			},
+			cancel(){
+				this.RemoveChatMsg = false;
+			},
+			remove(){
+				//进行数据移除
+				//获取indx 的id
+				const friendId = this.friendList[this.index].friendId
+				const friendList =JSON.parse(uni.getStorageSync(ChatMsgLog.chatFriendList))
+				//获取当前操作所在的索引
+				const index = friendList.findIndex(value => value.friendId == friendId )
+				//移除
+				friendList.splice(index,1)
+				uni.setStorageSync(ChatMsgLog.chatFriendList,JSON.stringify(friendList))
+				//刷新页面
+				uni.$emit("chatFriendList",{status:true})
+				this.openChat = true // 可以进入聊天页面
+				this.RemoveChatMsg = false;
+			},
+
+			/**
+			 * 在本地列表中获取用户所
+			 * @param friend
+			 */
+			getUserListFindFriend(friend){
+
+				const friendList =JSON.parse(uni.getStorageSync("userFriendList"))
+				// let result = friendList.forEach((value)=>{
+				//
+				//     console.log(value.data.find((res) => res.friendUserId == friend));
+				//
+				// })
+				let result
+				for (let i =0; i< friendList.length ;i++){
+					result = friendList[i].data.find((res)=> res.friendUserId == friend)
+					console.log(result)
+					if (result){
+						break
+					}
+				}
+				return result
+				//  console.log(result)
+			},
+			/**
+			 * 设置web的链接
+			 */
+			setUniWebSocket(){
+				const WebSocket = new UniWebSocket();
+				const  _this = this
+				WebSocket.SocketTask.onMessage((res)=>{
+					console.log("返回的数据")
+					console.log(res)
+					const data = JSON.parse(res.data)
+					// 刷新盆友列表
+					if (data.action === DataContentAction.PULL_FRIEND){
+						uni.$emit("getFriendsListInfo")
+						return
+					}
+					//保存用户信息在本地
+					const userData  = new UserData();
+					const user = userData.getUserData()
+					const msg ={
+						who:0,
+						message:data.chatMsg.msg,
+						time:" "
+					}
+					ChatMsgLog.setChatMsg(user.id,data.chatMsg.senderId,msg)
+					const result = _this.getUserListFindFriend(data.chatMsg.senderId)
+					if (result){
+						ChatMsgLog.setChatFriendList(result.friendUserId,result.friendFaceImage,result.friendNickname,data.chatMsg.msg,true)
+						//消息传送到聊天快照页面 进行数据的显示
+						// 状态为 true 提醒页面更新消息
+						uni.$emit("chatFriendList",{status:true})
+					}
+					//播放声音
+					this.showVoice()
+					//接收到数据 进行数据签收回应
+					//  const chatMsg = new ChatMsg(user.id,this.friendData.friendUserId,sendValue,null)
+					const dataContent = new DataContent(DataContentAction.SIGNED,null,data.chatMsg.msgId)
+					const param ={
+						data:JSON.stringify(dataContent),
+					}
+					WebSocket.send(param)
+					uni.$emit("chatMsgData",res);
+				})
+
+				uni.$on("sendMessage",(res)=>{
+					const state = WebSocket.SocketTask.readyState
+					console.log(state);
+					if(state === 1){
+						WebSocket.send(res)
+						uni.$emit("sendSuccess",null)
+						uni.$off('sendSuccess')
+					}
+					//console.log(res);
+					//uni.$off('sendMessage')
+				})
+				
+				uni.$on("closeSocket",()=>{
+
+					WebSocket.closeSocket()
+				})
+			},
+			/**
+			 * 收到声音播放
+			 */
+			showVoice(){
+				const innerAudioContext = uni.createInnerAudioContext();
+				innerAudioContext.autoplay = true;
+				innerAudioContext.src= "../../static/voice/remind.mp3"
+				innerAudioContext.onPlay();
+			}
+		}
+	}
+</script>
+
+<style>
+	
+</style>
